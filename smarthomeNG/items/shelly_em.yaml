@@ -69,7 +69,7 @@ shelly_em:
         reset:
             name: Rücksetzen der persistenten Zähler für Verbrauch (/total) und Einspeisung (/total_returned)
             type: str
-            mqtt_topic_out: shellies/shellyem-255CAB5195B2/relay/0/command
+            mqtt_topic_out: shellies/shellyem-255CAB5195B2/relay/1/command
             # Accepted command: 'reset_totals'
 
         energy:
