@@ -1,0 +1,163 @@
+# SmarthomeNG-Items for Integration of Shelly EM using MQTT
+# Reference: First Generation Shelly Devices API Documentation, MQTT section. See 'https://shelly-api-docs.shelly.cloud/gen1/#shelly-em-overview'
+
+# Please note:
+# Make sure your MQTT prefix in your Shelly setup is used for the DeviceID section in the 'mqtt_topic_in' / 'mqtt_topic_out' value in this yaml file
+# DeviceID used in the items below: 'shellyem-255CAB5195B2'
+
+
+shelly_em:
+    name: Shelly EM 2-Kanal Energiemesser und 1 Kanal Relaissteuerung
+    
+    energie_0:
+        name: Energiemesser Kanal 0
+        
+        reset:
+            name: Rücksetzen der persistenten Zähler für Verbrauch (/total) und Einspeisung (/total_returned)
+            type: str
+            mqtt_topic_out: shellies/shellyem-255CAB5195B2/relay/0/command
+            # Accepted command: 'reset_totals'
+
+        energy:
+            name: Energiezähler [Wmin]
+            remark: Nicht-persistente implementierung im Shelly
+            type: num
+            mqtt_topic_in: shellies/shellyem-255CAB5195B2/emeter/0/energy
+            
+        returned_energy:
+            name: Einspeisungsenergiezähler [Wmin]
+            remark: Nicht-persistente implementierung im Shelly
+            type: num
+            mqtt_topic_in: shellies/shellyem-255CAB5195B2/emeter/0/returned_energy
+                    
+        total:
+            name: Verbrauchszähler [Wh]
+            remark: Persistente implementierung im Shelly
+            type: num
+            mqtt_topic_in: shellies/shellyem-255CAB5195B2/emeter/0/total
+                                                    
+        total_returned:
+            name: Einspeisungszähler [Wh]
+            remark: Persistente implementierung im Shelly
+            type: num
+            mqtt_topic_in: shellies/shellyem-255CAB5195B2/emeter/0/total_returned
+                
+        power:
+            name: Momentane Wirkleistung [W]
+            type: num
+            mqtt_topic_in: shellies/shellyem-255CAB5195B2/emeter/0/power
+            
+        blindleistung:
+            name: Momentane Blindleistung [VAR]
+            type: num
+            mqtt_topic_in: shellies/shellyem-255CAB5195B2/emeter/0/reactive_power
+            
+        leistungsfaktor:
+            name: Momentaner Leistungsfaktor [-]
+            type: num
+            mqtt_topic_in: shellies/shellyem-255CAB5195B2/emeter/0/pf
+            
+        spannung:
+            name: Netzspannung [V]
+            type: num
+            mqtt_topic_in: shellies/shellyem-255CAB5195B2/emeter/0/voltage
+            
+                
+    energie_1:
+        name: Energiemesser Kanal 1
+        
+        reset:
+            name: Rücksetzen der persistenten Zähler für Verbrauch (/total) und Einspeisung (/total_returned)
+            type: str
+            mqtt_topic_out: shellies/shellyem-255CAB5195B2/relay/0/command
+            # Accepted command: 'reset_totals'
+
+        energy:
+            name: Energiezähler [Wmin]
+            remark: Nicht-persistente implementierung im Shelly
+            type: num
+            mqtt_topic_in: shellies/shellyem-255CAB5195B2/emeter/1/energy
+            
+        returned_energy:
+            name: Einspeisungsenergiezähler [Wmin]
+            remark: Nicht-persistente implementierung im Shelly
+            type: num
+            mqtt_topic_in: shellies/shellyem-255CAB5195B2/emeter/1/returned_energy
+                    
+        total:
+            name: Verbrauchszähler [Wh]
+            remark: Persistente implementierung im Shelly
+            type: num
+            mqtt_topic_in: shellies/shellyem-255CAB5195B2/emeter/1/total
+                                                    
+        total_returned:
+            name: Einspeisungszähler [Wh]
+            remark: Persistente implementierung im Shelly
+            type: num
+            mqtt_topic_in: shellies/shellyem-255CAB5195B2/emeter/1/total_returned
+                
+        power:
+            name: Momentane Wirkleistung [W]
+            type: num
+            mqtt_topic_in: shellies/shellyem-255CAB5195B2/emeter/1/power
+            
+        blindleistung:
+            name: Momentane Blindleistung [Var]
+            type: num
+            mqtt_topic_in: shellies/shellyem-255CAB5195B2/emeter/1/reactive_power
+            
+        leistungsfaktor:
+            name: Momentaner Leistungsfaktor [-]
+            type: num
+            mqtt_topic_in: shellies/shellyem-255CAB5195B2/emeter/1/pf
+            
+        spannung:
+            name: Netzspannung [V]
+            type: num
+            mqtt_topic_in: shellies/shellyem-255CAB5195B2/emeter/1/voltage
+            
+            
+    relay:
+        name: Relaissteuerung
+        type: str
+        mqtt_topic_in: shellies/shellyem-255CAB5195B2/relay/0
+        # Status reports: 'on', 'off', 'overpower'
+        mqtt_topic_out: shellies/shellyem-255CAB5195B2/relay/0/command
+        # Accepted commands: 'on', 'off', 'toggle'
+        
+        
+    announce:
+        name: Ansagetext (JSON)
+        type: dict
+        mqtt_topic_in: shellies/shellyem-255CAB5195B2/announce
+        on_change:
+          - .id = value['id']
+          - .model = value['model']
+          - .mac = value['mac']
+          - .ip = value['ip']
+          - .new_fw = value['new_fw']
+          - .fw_ver = value['fw_ver']
+              
+        id:
+            name: Device ID
+            type: str
+              
+        model:
+            name: Modell
+            type: str
+              
+        mac:
+            name: MAC-Adresse Shelly Device
+            type: str
+              
+        ip:
+            name: IP-Adresse Shelly Device
+            type: str
+              
+        new_fw:
+            name: FW-Update available (True)
+            type: bool
+              
+        fw_ver:
+            name: Aktuelle FW Version
+            type: str
