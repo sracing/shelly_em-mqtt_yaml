@@ -9,7 +9,7 @@
 shelly_em:
     name: Shelly EM 2-Kanal Energiemesser und 1 Kanal Relaissteuerung
     
-    energie_0:
+    energie_ch0:
         name: Energiemesser Kanal 0
         
         reset:
@@ -58,12 +58,12 @@ shelly_em:
             mqtt_topic_in: shellies/shellyem-255CAB5195B2/emeter/0/pf
             
         spannung:
-            name: Netzspannung [V]
+            name: RMS Spannung [V]
             type: num
             mqtt_topic_in: shellies/shellyem-255CAB5195B2/emeter/0/voltage
             
                 
-    energie_1:
+    energie_ch1:
         name: Energiemesser Kanal 1
         
         reset:
@@ -147,11 +147,11 @@ shelly_em:
             type: str
               
         mac:
-            name: MAC-Adresse Shelly Device
+            name: MAC-Adresse
             type: str
               
         ip:
-            name: IP-Adresse Shelly Device
+            name: IP-Adresse
             type: str
               
         new_fw:
@@ -161,3 +161,299 @@ shelly_em:
         fw_ver:
             name: Aktuelle FW Version
             type: str
+        
+        
+    online:
+        name: Online Status
+        type: bool
+        mqtt_topic_in: shellies/shellyem-255CAB5195B2/online
+        
+        
+    info:
+        name: Information (JSON)
+        type: dict
+        mqtt_topic_in: shellies/shellyem-255CAB5195B2/info
+        on_change:
+          - .wifi_sta = value['wifi_sta']
+          - .cloud = value['cloud']
+          - .mqtt = value['mqtt']
+          - .time = value['time']
+          - .unixtime = value['unixtime']
+          - .serial = value['serial']
+          - .has_update = value['has_update']
+          - .mac = value['mac']
+          - .cfg_changed_cnt = value['cfg_changed_cnt']
+          - .actions_stats = value['actions_stats']
+          - .relays = value['relays']
+          - .emeters = value['emeters']
+          - .update = value['update']
+          - .ram_total = value['ram_total']
+          - .ram_free = value['ram_free']
+          - .fs_size = value['fs_size']
+          - .fs_free = value['fs_free']
+          - .uptime = value['uptime']
+              
+        wifi_sta:
+            name: WiFi Status (JSON)
+            type: dict
+            on_change:
+              - .connected = value['connected']
+              - .ssid = value['ssid']
+              - .ip = value['ip']
+              - .rssi = value['rssi']
+              
+            connected:
+                name: WiFi Verbindungs-Status
+                type: bool
+              
+            ssid:
+                name: WLAN Name
+                type: str
+              
+            ip:
+                name: IP-Adresse Shelly Device
+                type: str
+              
+            rssi:
+                name: Empfangsqualität
+                type: num
+              
+        cloud:
+            name: Cloud Status (JSON)
+            type: dict
+            on_change:
+              - .enabled = value['enabled']
+              - .connected = value['connected']
+              
+            enabled:
+                name: Aktivierungsstatus
+                type: bool
+              
+            connected:
+                name: Verbindungsstatus
+                type: bool
+              
+        mqtt:
+            name: MQTT Status (JSON)
+            type: dict
+            on_change:
+              - .connected = value['connected']
+              
+            connected:
+                name: Verbindungsstatus
+                type: bool
+              
+        time:
+            name: Current time in the format HH:MM (24-hour time format in the current timezone with leading zero). Null when time is not synced from NTP server
+            type: str
+              
+        unixtime:
+            name: Unix timestamp (in UTC). Null when time is not synced from NTP server
+            type: num
+              
+        serial:
+            name: Cloud serial number
+            type: num
+              
+        has_update:
+            name: Whether an update is available
+            type: bool
+              
+        mac:
+            name: MAC-Adresse Shelly Device
+            type: str
+              
+        cfg_changed_cnt:
+            name: Config Changed Counter (since reboot) ?
+            # Note: Not listed in official documentation for Shelly PM. May be a bug.
+            type: num
+              
+        actions_stats:
+            name: Action Statistics (JSON) ?
+            # Note: Not listed in official documentation for Shelly PM. May be a bug.
+            type: dict
+              
+        relays:
+            name: Status of the internal relay (List of JSON´s)
+            type: list
+            on_change:
+              - .ison = value[0]['ison']
+              - .has_timer = value[0]['has_timer']
+              - .timer_started = value[0]['timer_started']
+              - .timer_duration = value[0]['timer_duration']
+              - .timer_remaining = value[0]['timer_remaining']
+              - .overpower = value[0]['overpower']
+              - .is_valid = value[0]['is_valid']
+              - .source = value[0]['source']
+              
+            ison:
+                name: Whether the channel is turned ON or OFF
+                type: bool
+              
+            has_timer:
+                name: Whether a timer is currently armed for this channel
+                type: bool
+              
+            timer_started:
+                name: Unix timestamp of timer start; 0 if timer inactive or time not synced
+                type: num
+              
+            timer_duration:
+                name: Timer duration [sec]
+                type: num
+              
+            timer_remaining:
+                name: If there is an active timer, shows seconds until timer elapses; 0 otherwise
+                remark: Experimental
+                type: num
+              
+            overpower:
+                name: Whether an overpower condition has occurred
+                type: bool
+              
+            is_valid:
+                name: Whether power result is valid
+                type: bool
+              
+            source:
+                name: Source of the last relay command
+                type: str
+              
+        emeters:
+            name: Current meter readings
+            
+            ch0:
+                name: Kanal 0
+                type: list
+                on_change:
+                  - .power = value[0]['ison']
+                  - .reactive = value[0]['reactive']
+                  - .pf = value[0]['pf']
+                  - .voltage = value[0]['voltage']
+                  - .is_valid = value[0]['is_valid']
+                  - .total = value[0]['total']
+                  - .total_returned = value[0]['total_returned']
+                  
+                power:
+                    name: Momentane Wirkleistung [W]
+                    # Note: Duplicate of 'shellyem.energie_ch0.power'. Testing did not show values submitted others than '0'
+                    type: num
+                  
+                reactive:
+                    name: Momentane Blindleistung [Var]
+                    # Note: Duplicate of 'shellyem.energie_ch0.blindleistung'. Testing did not show values submitted others than '0'
+                    type: num
+                  
+                pf:
+                    name: Leistungsfaktor [-]
+                    # Note: Duplicate of 'shellyem.energie_ch0.pf'. Testing did not show values submitted others than '0'
+                    type: num
+                  
+                voltage:
+                    name: RMS Spannung [V]
+                    # Note: Duplicate of 'shellyem.energie_ch0.voltage'. Testing did not show values submitted others than '0'
+                    type: bool
+                  
+                is_valid:
+                    name: Whether the associated meter is functioning properly
+                    # Note: Testing did not show values submitted others than 'false'
+                    type: bool
+                  
+                total:
+                    name: Verbrauchszähler [Wh]
+                    type: bool
+                  
+                total_returned:
+                    name: Einspeisungszähler [Wh]
+                    type: bool
+            
+            ch1:
+                name: Kanal 0
+                type: list
+                on_change:
+                  - .power = value[1]['ison']
+                  - .reactive = value[1]['reactive']
+                  - .pf = value[1]['pf']
+                  - .voltage = value[1]['voltage']
+                  - .is_valid = value[1]['is_valid']
+                  - .total = value[1]['total']
+                  - .total_returned = value[1]['total_returned']
+                  
+                power:
+                    name: Momentane Wirkleistung [W]
+                    # Note: Duplicate of 'shellyem.energie_ch1.power'. Testing did not show values submitted others than '0'
+                    type: num
+                  
+                reactive:
+                    name: Momentane Blindleistung [Var]
+                    # Note: Duplicate of 'shellyem.energie_ch1.blindleistung'. Testing did not show values submitted others than '0'
+                    type: num
+                  
+                pf:
+                    name: Leistungsfaktor [-]
+                    # Note: Duplicate of 'shellyem.energie_ch1.pf'. Testing did not show values submitted others than '0'
+                    type: num
+                  
+                voltage:
+                    name: RMS Spannung [V]
+                    # Note: Duplicate of 'shellyem.energie_ch1.voltage'. Testing did not show values submitted others than '0'
+                    type: bool
+                  
+                is_valid:
+                    name: Whether the associated meter is functioning properly
+                    # Note: Testing did not show values submitted others than 'false'
+                    type: bool
+                  
+                total:
+                    name: Verbrauchszähler [Wh]
+                    type: bool
+                  
+                total_returned:
+                    name: Einspeisungszähler [Wh]
+                    type: bool
+              
+        update:
+            name: FW update status (JSON)
+            type: dict
+            on_change:
+              - .status = value['status']
+              - .has_update = value['has_update']
+              - .new_version = value['new_version']
+              - .old_version = value['old_version']
+                  
+            status:
+                name: WiFi Verbindungs-Status
+                # Status reports: 'idle', 'pending', 'updating', 'unknown'
+                type: str
+              
+            has_update:
+                name: Whether an update is available
+                type: bool
+              
+            new_version:
+                name: ID of new firmware version
+                type: str
+              
+            old_version:
+                name: ID of old (current) firmware version
+                type: str
+              
+        ram_total:
+            name: Total amount of system memory in bytes
+            type: num
+              
+        ram_free:
+            name: Available amount of system memory in bytes
+            type: num
+              
+        fs_size:
+            name: Total amount of the file system in bytes
+            type: num
+              
+        fs_free:
+            name: Available amount of the file system in bytes
+            type: num
+              
+        uptime:
+            name: Seconds elapsed since boot
+            type: num
